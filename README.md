@@ -17,6 +17,19 @@ C:\xampp\php\php.exe -S localhost:8000 -t "D:\Devoir Php"
 1. Ouvrir <http://localhost:8000/install.php> une seule fois (création des tables + données de démonstration).
 2. Puis <http://localhost:8000/login.php>.
 
+## Déploiement sur Render
+
+Render n'a pas de runtime PHP natif : le service est construit à partir du
+[Dockerfile](Dockerfile) (PHP 8.2 + Apache).
+
+1. **New Web Service** → connecter le dépôt `RickielOb/Suivi-des-factures`.
+2. Language / Runtime : **Docker** (détecté automatiquement grâce au Dockerfile).
+3. Branche `main`, aucune commande de build ni de start à saisir.
+4. Après le premier déploiement, ouvrir une fois `https://<service>.onrender.com/install.php`
+   (sans effet si la base est déjà peuplée), puis `login.php`.
+
+La base Turso étant externe, aucun service de base de données n'est à créer sur Render.
+
 ## Comptes
 
 | Rôle | Email | Mot de passe |
