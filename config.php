@@ -3,20 +3,9 @@
  * Configuration générale de l'application.
  */
 
-// --- Base de données MySQL (Railway) ---
-// L'URL interne ne fonctionne que depuis un service déployé sur Railway.
-// En local, définir la variable d'environnement MYSQL_URL avec l'URL publique
-// (MYSQL_PUBLIC_URL dans l'onglet Variables de Railway), ou modifier la valeur ci-dessous.
-$mysql_url = getenv('MYSQL_URL')
-    ?: getenv('DATABASE_URL')
-    ?: 'mysql://root:jQTwDlIiCEZMuSbaIizbpcwgwIAuCTow@mysql.railway.internal:3306/railway';
-
-$u = parse_url($mysql_url);
-define('DB_HOST', $u['host'] ?? 'localhost');
-define('DB_PORT', $u['port'] ?? 3306);
-define('DB_NAME', ltrim($u['path'] ?? '/railway', '/'));
-define('DB_USER', urldecode($u['user'] ?? 'root'));
-define('DB_PASS', urldecode($u['pass'] ?? ''));
+// --- Base de données Turso (libSQL) ---
+define('TURSO_URL',   'https://projet-wen-dynamique-rickiel.aws-eu-west-1.turso.io');
+define('TURSO_TOKEN', 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJleHAiOjE3OTExNDAwMjEsImlhdCI6MTc4NTk1NjAyMSwiaWQiOiIwMTlmZDMxZi1jNjAxLTdjMGEtOGMwYi1hOGY3YzkwZGY0ZDUiLCJraWQiOiJzTXpUUzktOWs4eEJ0Tms4YU02R2M0UE1jMWdtU2w4T1h4aS1fU3pSVEFjIiwicmlkIjoiMzZhYzNjMWEtNjcwYi00MGFmLWFmNzAtYmUyZWVmYjhiZWFhIn0.X4XpCLuy2rEdRAWt1SNHqSaZLUjay2VFp1P58m5rDT8A4g_HwnClyFutYi4bHgrtdiDP9erwIbJIKzlNCDuOBg');
 
 // --- Application ---
 define('APP_NAME', 'AquaWatt');

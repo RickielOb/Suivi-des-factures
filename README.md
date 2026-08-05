@@ -1,36 +1,21 @@
 # AquaWatt — Suivi des factures eau / électricité
 
 Application PHP de gestion des relevés de compteur, de la facturation et des paiements.
-Base de données **MySQL hébergée sur Railway**, accès via PDO — voir [lib/db.php](lib/db.php).
+La base de données est hébergée sur **Turso (libSQL)** et interrogée via son API HTTP
+(PHP n'ayant pas de driver libSQL natif) — voir [lib/db.php](lib/db.php).
 
 ## Configuration
 
-La connexion est lue depuis la variable d'environnement `MYSQL_URL` (ou `DATABASE_URL`),
-avec repli sur l'URL interne Railway définie dans [config.php](config.php) :
-
-```
-mysql://root:********@mysql.railway.internal:3306/railway
-```
-
-- **Déployé sur Railway** : rien à faire, l'hôte `mysql.railway.internal` est résolu
-  automatiquement dans le réseau privé du projet.
-- **En local** : cet hôte n'est pas joignable. Utiliser l'URL publique
-  (`MYSQL_PUBLIC_URL` dans l'onglet *Variables* du service MySQL) :
-
-```bash
-set MYSQL_URL=mysql://root:MOTDEPASSE@xxxx.proxy.rlwy.net:PORT/railway
-```
+`TURSO_URL` et `TURSO_TOKEN` dans [config.php](config.php). Extension requise : `curl`.
 
 ## Lancement
 
 ```bash
-php -S localhost:8000 -t .
+C:\xampp\php\php.exe -S localhost:8000 -t "D:\Devoir Php"
 ```
 
 1. Ouvrir <http://localhost:8000/install.php> une seule fois (création des tables + données de démonstration).
 2. Puis <http://localhost:8000/login.php>.
-
-Extension requise : `pdo_mysql`.
 
 ## Comptes
 
@@ -48,7 +33,7 @@ Extension requise : `pdo_mysql`.
 - `paiement(id, facture_id, montant, date, mode)`
 - `utilisateur(id, nom, email, mot_de_passe, role, abonne_id)` — authentification
 
-Clés étrangères InnoDB, contrainte d'unicité `(abonne_id, mois)` sur les relevés.
+Contrainte d'unicité `(abonne_id, mois)` sur les relevés, `numero_compteur` unique.
 
 ## Fonctionnalités
 
@@ -66,9 +51,9 @@ Clés étrangères InnoDB, contrainte d'unicité `(abonne_id, mois)` sur les rel
 ## Arborescence
 
 ```
-config.php          connexion MySQL, tarifs, devise
+config.php          identifiants Turso, tarifs, devise
 install.php         création des tables + démo
-lib/db.php          couche PDO (db_all, db_one, db_exec…)
+lib/db.php          client HTTP Turso (db_all, db_one, db_exec…)
 lib/auth.php        session, rôles
 lib/helpers.php     formatage, statut des factures
 views/              header / footer
@@ -76,3 +61,7 @@ assets/style.css    feuille de style (aucune dépendance externe)
 index.php  abonnes.php  releves.php  factures.php  paiements.php  mon-espace.php
 login.php  logout.php
 ```
+
+> Le jeton Turso placé dans `config.php` a une durée de vie limitée (7 jours à sa création,
+> soit jusqu'au 12/08/2026). S'il expire, en générer un nouveau avec
+> `turso db tokens create projet-wen-dynamique-rickiel` et remplacer `TURSO_TOKEN`.

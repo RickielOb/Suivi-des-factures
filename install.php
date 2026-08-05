@@ -1,6 +1,6 @@
 <?php
 /**
- * Création des tables MySQL + jeu de données de démonstration.
+ * Création des tables sur Turso + jeu de données de démonstration.
  * À lancer une seule fois : http://localhost:8000/install.php
  */
 
@@ -12,50 +12,45 @@ $erreur = null;
 try {
     db_script([
         "CREATE TABLE IF NOT EXISTS abonne (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            nom VARCHAR(120) NOT NULL,
-            telephone VARCHAR(30),
-            adresse VARCHAR(180),
-            numero_compteur VARCHAR(40) NOT NULL UNIQUE,
-            type_abonnement ENUM('eau','electricite') NOT NULL,
-            cree_le TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nom TEXT NOT NULL,
+            telephone TEXT,
+            adresse TEXT,
+            numero_compteur TEXT NOT NULL UNIQUE,
+            type_abonnement TEXT NOT NULL CHECK (type_abonnement IN ('eau','electricite')),
+            cree_le TEXT DEFAULT CURRENT_TIMESTAMP
+        )",
         "CREATE TABLE IF NOT EXISTS releve (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            abonne_id INT NOT NULL,
-            mois VARCHAR(7) NOT NULL,
-            consommation DECIMAL(10,2) NOT NULL,
-            date_releve DATE NOT NULL,
-            UNIQUE KEY uniq_abonne_mois (abonne_id, mois),
-            CONSTRAINT fk_releve_abonne FOREIGN KEY (abonne_id) REFERENCES abonne(id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            abonne_id INTEGER NOT NULL REFERENCES abonne(id),
+            mois TEXT NOT NULL,
+            consommation REAL NOT NULL,
+            date_releve TEXT NOT NULL,
+            UNIQUE (abonne_id, mois)
+        )",
         "CREATE TABLE IF NOT EXISTS facture (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            abonne_id INT NOT NULL,
-            releve_id INT NOT NULL,
-            montant DECIMAL(12,2) NOT NULL,
-            date_emission DATE NOT NULL,
-            statut ENUM('impayee','partielle','payee') NOT NULL DEFAULT 'impayee',
-            CONSTRAINT fk_facture_abonne FOREIGN KEY (abonne_id) REFERENCES abonne(id),
-            CONSTRAINT fk_facture_releve FOREIGN KEY (releve_id) REFERENCES releve(id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            abonne_id INTEGER NOT NULL REFERENCES abonne(id),
+            releve_id INTEGER NOT NULL REFERENCES releve(id),
+            montant REAL NOT NULL,
+            date_emission TEXT NOT NULL,
+            statut TEXT NOT NULL DEFAULT 'impayee'
+        )",
         "CREATE TABLE IF NOT EXISTS paiement (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            facture_id INT NOT NULL,
-            montant DECIMAL(12,2) NOT NULL,
-            date DATE NOT NULL,
-            mode ENUM('especes','mobile_money','virement','cheque') NOT NULL,
-            CONSTRAINT fk_paiement_facture FOREIGN KEY (facture_id) REFERENCES facture(id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            facture_id INTEGER NOT NULL REFERENCES facture(id),
+            montant REAL NOT NULL,
+            date TEXT NOT NULL,
+            mode TEXT NOT NULL
+        )",
         "CREATE TABLE IF NOT EXISTS utilisateur (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            nom VARCHAR(120) NOT NULL,
-            email VARCHAR(120) NOT NULL UNIQUE,
-            mot_de_passe VARCHAR(255) NOT NULL,
-            role ENUM('admin','agent','abonne') NOT NULL,
-            abonne_id INT NULL,
-            CONSTRAINT fk_user_abonne FOREIGN KEY (abonne_id) REFERENCES abonne(id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nom TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            mot_de_passe TEXT NOT NULL,
+            role TEXT NOT NULL CHECK (role IN ('admin','agent','abonne')),
+            abonne_id INTEGER
+        )",
     ]);
     $log[] = 'Tables créées (abonne, releve, facture, paiement, utilisateur).';
 
